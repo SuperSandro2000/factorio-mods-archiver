@@ -19,7 +19,7 @@ parser.add_option("-d", "--directory", dest="dir", default="data",
                   help="write data to FOLDER", metavar="FOLDER")
 parser.add_option("-D", "--download", action="store_false", dest="download", default=True,
                   help="wether to download archives. Default: true")
-# parser.add_option("-q", "--quiet", action="store_false", dest="verbose", default=True,
+# parser.add_option("-q", "--quiet", action="store_false", dest="verbose", default=False,
 #                   help="don't print status messages to stdout")
 
 (options, args) = parser.parse_args()
@@ -96,6 +96,9 @@ for i, mod in enumerate(mods["results"]):
 
     for j, release in enumerate(mod_data["releases"]):
         release_id = release["download_url"].split("/")[3]
+        if release_id in data[mod["name"]]["releases"]:
+            continue
+
         if not release_id in data[mod["name"]]["releases"]:
             data[mod["name"]]["releases"][release_id] = {}
         archive = data[mod["name"]]["releases"][release_id]
@@ -110,7 +113,7 @@ for i, mod in enumerate(mods["results"]):
             release["download_url"], options.user, options.token)
         os.system("curl -Ls \"{}\" -o \"{}/{}\"".format(url, mod_folder, archive["file_name"]))
 
-        sha1_file = "{}.sha1".format(os.path.splitext(archive["file_name"])[0] + ".sha1")
+        sha1_file = "{}.sha1".format(os.path.splitext(archive["file_name"])[0])
         with open("{}/{}".format(mod_folder, sha1_file), "w") as f:
             f.write("{} *{}\n".format(archive["sha1"], archive["file_name"]))
         p = Popen(["sha1sum", "-c", sha1_file], cwd=mod_folder, stdout=PIPE)
