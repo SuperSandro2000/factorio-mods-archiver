@@ -65,7 +65,7 @@ for i, mod in enumerate(mods["results"]):
     # if i == 10:
     #     break
 
-    out = "Processing mod {} of {}: Getting data for {}".format(i, mod_count, mod["name"])
+    out = "Processing mod {} of {}: Comparing versions of {}".format(i, mod_count, mod["name"])
     print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
 
     mod_folder = "{}/{}".format(options.dir, mod["name"])
@@ -86,6 +86,8 @@ for i, mod in enumerate(mods["results"]):
         data[mod["name"]]["releases"] = {}
 
     # update archives
+    out = "Processing mod {} of {}: Getting data for {}".format(i, mod_count, mod["name"])
+    print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
     mod_data_req = requests.get("https://mods.factorio.com/api/mods/{}/full".format(mod["name"]))
     if mod_data_req.status_code != 200:
         logging.warning(mods_req.prepare())
