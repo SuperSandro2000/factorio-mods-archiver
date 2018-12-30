@@ -1,4 +1,6 @@
 .vscode/
 data/
+
 archiver.log
 data.json
+run.cmd
