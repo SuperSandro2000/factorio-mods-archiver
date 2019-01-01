@@ -65,8 +65,8 @@ for i, mod in enumerate(mods["results"]):
     # if i == 10:
     #     break
 
-    out = "Processing mod {} of {}: Comparing versions of {}".format(i, mod_count, mod["name"])
-    print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
+    # out = "Processing mod {} of {}: Comparing versions of {}".format(i, mod_count, mod["name"])
+    # print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
 
     mod_folder = "{}/{}".format(options.dir, mod["name"])
     if not os.path.isdir(mod_folder):
