@@ -101,7 +101,7 @@ for i, mod in enumerate(mods["results"]):
         if release_id in data[mod["name"]]["releases"]:
             continue
 
-        if not release_id in data[mod["name"]]["releases"]:
+        if release_id not in data[mod["name"]]["releases"]:
             data[mod["name"]]["releases"][release_id] = {}
         archive = data[mod["name"]]["releases"][release_id]
         archive["file_name"] = release["file_name"]
