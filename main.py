@@ -116,8 +116,9 @@ for i, mod in enumerate(mods["results"]):
         os.system("curl -Ls \"{}\" -o \"{}/{}\"".format(url, mod_folder, archive["file_name"]))
 
         sha1_file = "{}.sha1".format(os.path.splitext(archive["file_name"])[0])
-        with open("{}/{}".format(mod_folder, sha1_file), "w") as f:
+        with open("{}/{}".format(mod_folder, sha1_file), "w", newline="\n") as f:
             f.write("{} *{}\n".format(archive["sha1"], archive["file_name"]))
+
         p = Popen(["sha1sum", "-c", sha1_file], cwd=mod_folder, stdout=PIPE)
         output = p.communicate()[0]
         if p.returncode != 0:
