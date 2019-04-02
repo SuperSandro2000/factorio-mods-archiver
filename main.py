@@ -119,7 +119,7 @@ for i, mod in enumerate(mods["results"]):
         with open("{}/{}".format(mod_folder, sha1_file), "w", newline="\n") as f:
             f.write("{} *{}\n".format(archive["sha1"], archive["file_name"]))
 
-        p = Popen(["sha1sum", "-c", sha1_file], cwd=mod_folder, stdout=PIPE)
+        p = Popen(["sha1sum", "-c", "./{}".format(sha1_file)], cwd=mod_folder, stdout=PIPE)
         output = p.communicate()[0]
         if p.returncode != 0:
             logging.warning("sha1 mismatch at %s/%s", mod["name"], archive["file_name"])
