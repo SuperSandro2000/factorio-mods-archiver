@@ -26,13 +26,13 @@ parser.add_option("-D", "--download", action="store_false", dest="download", def
 
 columns, _ = os.get_terminal_size()
 
-if options.user is None or options.token is None:
+if options.user == "" or options.token == "":
     print("Set --user USER and --token TOKEN")
     exit()
+
 data_file = "{}.json".format(options.dir)
 mods_file = "{}/mods.json".format(options.dir)
 mods_cache_file = "{}/mods-cache.json".format(options.dir)
-
 
 if os.path.exists(data_file):
     with open(data_file, "r") as f:
