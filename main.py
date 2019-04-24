@@ -36,6 +36,8 @@ parser.add_option("-d", "--directory", dest="dir", default="data",
 parser.add_option("-c", "--check", action="store_true", dest="check_sha",
                   help="Check downloaded archives. Default: false")
 parser.add_option("-U", "--upload", action="store_true", dest="upload",
+                  help="Upload all downloaded archives. Default: false")
+parser.add_option("-A", "--upload-all", action="store_true", dest="upload_all",
                   help="Upload all downloaded archives that haven't already. Default: false")
 parser.add_option("-e", "--email", dest="email", default="",
                   help="GSuite drive email to upload to", metavar="EMAIL")
@@ -50,7 +52,7 @@ if options.user == "" or options.token == "":
     print("Set --user USER and --token TOKEN")
     exit()
 
-if options.upload and (options.email == "" or options.password == ""):
+if (options.upload or options.upload_all) and (options.email == "" or options.password == ""):
     print("When supplying --upload you need to supply --email EMAIL and --password PASSWORD")
     exit()
 
@@ -102,7 +104,7 @@ for i, mod in enumerate(mods["results"]):
         for k in data[mod["name"]]["releases"]:
             versions.append(data[mod["name"]]["releases"][k]["version"])
 
-        if mod["latest_release"]["version"] in versions and not (options.check_sha or options.upload):
+        if mod["latest_release"]["version"] in versions and not (options.check_sha or options.upload_all):
             continue
 
     # data entry empty, mod new then process all archives
@@ -127,21 +129,23 @@ for i, mod in enumerate(mods["results"]):
 
         if release_id not in data[mod["name"]]["releases"]:
             data[mod["name"]]["releases"][release_id] = {}
-
-        # add uploaded tag if necessary
-        if "uploaded" not in data[mod["name"]]["releases"][release_id]:
-            data[mod["name"]]["releases"][release_id]["uploaded"] = False
+        else:
+            if not options.check_sha and not options.upload_all:
+                continue
 
         archive = data[mod["name"]]["releases"][release_id]
         archive["file_name"] = release["file_name"]
         archive["sha1"] = release["sha1"]
         archive["version"] = release["version"]
 
-        if release_id in data[mod["name"]]["releases"] and not options.check_sha and not options.upload:
+        # add uploaded tag if necessary
+        if "uploaded" not in archive:
+            archive["uploaded"] = False
+        else:
             continue
 
         # download files
-        if not (options.check_sha or options.upload):
+        if not (options.check_sha or options.upload_all):
             out = "Processing mod {} of {}: Downloading {}".format(i + 1, mod_count, archive["file_name"])
             print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
 
@@ -162,14 +166,21 @@ for i, mod in enumerate(mods["results"]):
 
         # upload to gsuite
         for file in [archive["file_name"], sha1_file]:
-            p = Popen(["rclone", "--drive-impersonate", options.email, "move", "./{}".format(file),
-                       "gdrive:/archive/factorio-mods/{}".format(mod["name"])],
+            out = "Processing mod {} of {}: Uploading {}".format(i + 1, mod_count, archive["file_name"])
+            print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
+
+            p = Popen(["rclone", "--drive-impersonate", options.email, "--retries", "3", "--retries-sleep", "3s",
+                       "move", "./{}".format(file), "gdrive:/archive/factorio-mods/{}".format(mod["name"])],
                       cwd=mod_folder, env={"HOME": os.environ['HOME'], "RCLONE_CONFIG_PASS": options.password},
                       stdout=PIPE)
             output = p.communicate()[0]
-            print(output.decode("utf-8"))
+
             if p.returncode != 0:
                 logging.warning("Upload of file %s from mod %s failed", archive["file_name"], mod["name"])
+
+            if (output.decode("utf-8").isspace()):
+                print("Possible error occurred:")
+                print(output.decode("utf-8"))
 
         archive["uploaded"] = True
 
