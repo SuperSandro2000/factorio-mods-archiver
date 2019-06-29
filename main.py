@@ -165,22 +165,23 @@ for i, mod in enumerate(mods["results"]):
             logging.warning("sha1 mismatch at %s/%s", mod["name"], archive["file_name"])
 
         # upload to gsuite
-        for file in [archive["file_name"], sha1_file]:
-            out = "Processing mod {} of {}: Uploading {}".format(i + 1, mod_count, archive["file_name"])
-            print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
+        if options.upload:
+            for file in [archive["file_name"], sha1_file]:
+                out = "Processing mod {} of {}: Uploading {}".format(i + 1, mod_count, archive["file_name"])
+                print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
 
-            p = Popen(["rclone", "--drive-impersonate", options.email, "--retries", "3", "--retries-sleep", "3s",
-                       "move", "./{}".format(file), "gdrive:/archive/factorio-mods/{}".format(mod["name"])],
-                      cwd=mod_folder, env={"HOME": os.environ['HOME'], "RCLONE_CONFIG_PASS": options.password},
-                      stdout=PIPE)
-            output = p.communicate()[0]
+                p = Popen(["rclone", "--drive-impersonate", options.email, "--retries", "3", "--retries-sleep", "3s",
+                        "move", "./{}".format(file), "gdrive:/archive/factorio-mods/{}".format(mod["name"])],
+                        cwd=mod_folder, env={"HOME": os.environ['HOME'], "RCLONE_CONFIG_PASS": options.password},
+                        stdout=PIPE)
+                output = p.communicate()[0]
 
-            if p.returncode != 0:
-                logging.warning("Upload of file %s from mod %s failed", archive["file_name"], mod["name"])
+                if p.returncode != 0:
+                    logging.warning("Upload of file %s from mod %s failed", archive["file_name"], mod["name"])
 
-            if (output.decode("utf-8").isspace()):
-                print("Possible error occurred:")
-                print(output.decode("utf-8"))
+                if (output.decode("utf-8").isspace()):
+                    print("Possible error occurred:")
+                    print(output.decode("utf-8"))
 
         archive["uploaded"] = True
 
