@@ -189,4 +189,5 @@ for i, mod in enumerate(mods["results"]):
         with open(data_file, "w") as f:
             json.dump(data, f, indent=2, sort_keys=True)
 
-os.remove(mods_cache_file)
+if os.path.exists(mods_cache_file):
+    os.remove(mods_cache_file)
