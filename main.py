@@ -171,9 +171,9 @@ for i, mod in enumerate(mods["results"]):
                 print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
 
                 p = Popen(["rclone", "--drive-impersonate", options.email, "--retries", "3", "--retries-sleep", "3s",
-                        "move", "./{}".format(file), "gdrive:/archive/factorio-mods/{}".format(mod["name"])],
-                        cwd=mod_folder, env={"HOME": os.environ['HOME'], "RCLONE_CONFIG_PASS": options.password},
-                        stdout=PIPE)
+                           "move", "./{}".format(file), "gdrive:/archive/factorio-mods/{}".format(mod["name"])],
+                          cwd=mod_folder, env={"HOME": os.environ['HOME'], "RCLONE_CONFIG_PASS": options.password},
+                          stdout=PIPE)
                 output = p.communicate()[0]
 
                 if p.returncode != 0:
