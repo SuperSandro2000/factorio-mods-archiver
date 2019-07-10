@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from optparse import OptionParser
 from subprocess import Popen, PIPE
-from time import sleep
 import json
 import logging
 import os
