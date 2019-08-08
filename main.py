@@ -23,7 +23,12 @@ class DelayedKeyboardInterrupt(object):
             self.old_handler(*self.signal_received)
 
 
-logging.basicConfig(filename="archiver-py.log", level=logging.WARN)
+logFile = "archiver-py.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-7.7s  %(message)s",
+    handlers=[logging.FileHandler("{}.log".format(logFile)), logging.StreamHandler()],
+)
 
 parser = OptionParser()
 parser.add_option(
