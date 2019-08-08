@@ -60,7 +60,7 @@ parser.add_option(
     "--check",
     action="store_true",
     dest="check_sha",
-    help="Check downloaded archives. Default: false",
+    help="Needs to be implemented! Check downloaded archives. Default: false",
 )
 parser.add_option(
     "-U",
