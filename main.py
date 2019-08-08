@@ -109,6 +109,10 @@ if (options.upload or options.upload_all) and (
     )
     exit(1)
 
+# if GSuite email and password are supplied guess to upload archives
+if options.email or options.password:
+    options.upload = True
+
 data_file = "{}.json".format(options.dir)
 mods_file = "{}/mods.json".format(options.dir)
 mods_cache_file = "{}/mods-cache.json".format(options.dir)
