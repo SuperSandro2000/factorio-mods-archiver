@@ -74,7 +74,7 @@ parser.add_option(
     "--upload-all",
     action="store_true",
     dest="upload_all",
-    help="Upload all downloaded archives that haven't already. Default: false",
+    help="Skip updating mods data and upload all downloaded archives that haven't already. Default: false",
 )
 parser.add_option(
     "-e",
@@ -130,15 +130,23 @@ if os.path.isdir(options.dir):
 else:
     os.makedirs(options.dir, exist_ok=True)
 
-mods_req = requests.get("https://mods.factorio.com/api/mods?page_size=max")
-if mods_req.status_code != 200:
-    logging.warning(mods_req.prepare())
-    exit()
+# reuse local data
+if options.upload_all:
+    if os.path.exists(data_file):
+        with open(data_file, "r") as f:
+            data = json.load(f)
+    else:
+        logging.error("No data.json found.")
+        exit(1)
+else:
+    mods_req = requests.get("https://mods.factorio.com/api/mods?page_size=max")
+    if mods_req.status_code != 200:
+        logging.warning(mods_req.prepare())
+        exit(1)
 
-mods = mods_req.json()
-
-with open(mods_file, "w") as f:
-    json.dump(mods, f, indent=2, sort_keys=True)
+    mods = mods_req.json()
+    with open(mods_file, "w") as f:
+        json.dump(mods, f, indent=2, sort_keys=True)
 
 
 mod_count = len(mods["results"])
