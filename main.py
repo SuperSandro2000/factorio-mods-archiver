@@ -279,7 +279,7 @@ for i, mod in enumerate(mods["results"]):
 
                 if p.returncode != 0:
                     upload_errors = True
-                    logging.warning(
+                    logging.error(
                         "Upload of file %s from mod %s failed",
                         archive["file_name"],
                         mod["name"],
@@ -287,8 +287,8 @@ for i, mod in enumerate(mods["results"]):
 
                 if output.decode("utf-8").isspace():
                     upload_errors = True
-                    print("Possible error occurred:")
-                    print(output.decode("utf-8"))
+                    logging.error("Possible error occurred:")
+                    logging.error(output.decode("utf-8"))
 
             if not upload_errors:
                 archive["uploaded"] = True
