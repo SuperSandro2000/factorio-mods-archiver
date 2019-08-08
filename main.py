@@ -99,7 +99,7 @@ columns, _ = os.get_terminal_size()
 
 if options.user == "" or options.token == "":
     print("Set --user USER and --token TOKEN")
-    exit()
+    exit(1)
 
 if (options.upload or options.upload_all) and (
     options.email == "" or options.password == ""
@@ -107,7 +107,7 @@ if (options.upload or options.upload_all) and (
     print(
         "When supplying --upload you need to supply --email EMAIL and --password PASSWORD"
     )
-    exit()
+    exit(1)
 
 data_file = "{}.json".format(options.dir)
 mods_file = "{}/mods.json".format(options.dir)
@@ -184,8 +184,8 @@ for i, mod in enumerate(mods["results"]):
         "https://mods.factorio.com/api/mods/{}/full".format(mod["name"])
     )
     if mod_data_req.status_code != 200:
-        logging.warning(mods_req.prepare())
-        exit()
+        logging.error(mods_req.prepare())
+        exit(1)
 
     mod_data = mod_data_req.json()
     with open("{}/mod.json".format(mod_folder), "w") as f:
