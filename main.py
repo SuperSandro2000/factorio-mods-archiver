@@ -238,6 +238,7 @@ for i, mod in enumerate(mods["results"]):
 
         # upload to gsuite
         if options.upload:
+            upload_errors = False
             for file in [archive["file_name"], sha1_file]:
                 out = "Processing mod {} of {}: Uploading {}".format(
                     i + 1, mod_count, archive["file_name"]
@@ -269,6 +270,7 @@ for i, mod in enumerate(mods["results"]):
                 output = p.communicate()[0]
 
                 if p.returncode != 0:
+                    upload_errors = True
                     logging.warning(
                         "Upload of file %s from mod %s failed",
                         archive["file_name"],
@@ -276,10 +278,12 @@ for i, mod in enumerate(mods["results"]):
                     )
 
                 if output.decode("utf-8").isspace():
+                    upload_errors = True
                     print("Possible error occurred:")
                     print(output.decode("utf-8"))
 
-        archive["uploaded"] = True
+            if not upload_errors:
+                archive["uploaded"] = True
 
     with DelayedKeyboardInterrupt():
         with open(data_file, "w") as f:
