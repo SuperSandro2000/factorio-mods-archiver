@@ -4,3 +4,4 @@ data/
 data.json
 run.cmd
 run.sh
+.mypy_cache/
