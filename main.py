@@ -32,28 +32,11 @@ logging.basicConfig(
 
 parser = OptionParser()
 parser.add_option(
-    "-u",
-    "--user",
-    dest="user",
-    default="",
-    help="sets the user name to download with",
-    metavar="USER",
-)
-parser.add_option(
-    "-t",
-    "--token",
-    dest="token",
-    default="",
-    help="sets the token to download with",
-    metavar="TOKEN",
-)
-parser.add_option(
-    "-d",
-    "--directory",
-    dest="dir",
-    default="data",
-    help="write data to FOLDER",
-    metavar="FOLDER",
+    "-A",
+    "--upload-all",
+    action="store_true",
+    dest="upload_all",
+    help="Skip updating mods data and upload all downloaded archives that haven't already. Default: false",
 )
 parser.add_option(
     "-c",
@@ -63,18 +46,12 @@ parser.add_option(
     help="Needs to be implemented! Check downloaded archives. Default: false",
 )
 parser.add_option(
-    "-U",
-    "--upload",
-    action="store_true",
-    dest="upload",
-    help="Upload all downloaded archives. Default: false",
-)
-parser.add_option(
-    "-A",
-    "--upload-all",
-    action="store_true",
-    dest="upload_all",
-    help="Skip updating mods data and upload all downloaded archives that haven't already. Default: false",
+    "-d",
+    "--directory",
+    dest="dir",
+    default="data",
+    help="write data to FOLDER",
+    metavar="FOLDER",
 )
 parser.add_option(
     "-e",
@@ -91,6 +68,29 @@ parser.add_option(
     default="",
     help="RClone configuration password",
     metavar="PASSWORD",
+)
+parser.add_option(
+    "-t",
+    "--token",
+    dest="token",
+    default="",
+    help="sets the token to download with",
+    metavar="TOKEN",
+)
+parser.add_option(
+    "-u",
+    "--user",
+    dest="user",
+    default="",
+    help="sets the user name to download with",
+    metavar="USER",
+)
+parser.add_option(
+    "-U",
+    "--upload",
+    action="store_true",
+    dest="upload",
+    help="Upload all downloaded archives. Default: false",
 )
 
 (options, args) = parser.parse_args()
