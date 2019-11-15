@@ -62,6 +62,14 @@ parser.add_option(
     metavar="EMAIL",
 )
 parser.add_option(
+    "-f",
+    "--flush",
+    action="store_false",
+    default=True,
+    dest="flush",
+    help="Turn off screen output flush",
+)
+parser.add_option(
     "-p",
     "--password",
     dest="password",
@@ -155,7 +163,7 @@ mod_count = len(mods["results"])
 
 for i, mod in enumerate(mods["results"]):
     # out = "Processing mod {} of {}: Comparing versions of {}".format(i, mod_count, mod["name"])
-    # print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
+    # print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
 
     mod_folder = "{}/{}".format(options.dir, mod["name"])
     if not os.path.isdir(mod_folder):
@@ -181,7 +189,7 @@ for i, mod in enumerate(mods["results"]):
     out = "Processing mod {} of {}: Getting data for {}".format(
         i + 1, mod_count, mod["name"]
     )
-    print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
+    print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
     mod_data_req = requests.get(
         "https://mods.factorio.com/api/mods/{}/full".format(mod["name"])
     )
@@ -218,7 +226,7 @@ for i, mod in enumerate(mods["results"]):
             out = "Processing mod {} of {}: Downloading {}".format(
                 i + 1, mod_count, archive["file_name"]
             )
-            print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True)
+            print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
 
             url = "https://mods.factorio.com{}?username={}&token={}".format(
                 release["download_url"], options.user, options.token
@@ -257,9 +265,7 @@ for i, mod in enumerate(mods["results"]):
                 out = "Processing mod {} of {}: Uploading {}".format(
                     i + 1, mod_count, archive["file_name"]
                 )
-                print(
-                    "{}{}".format(out, " " * (columns - len(out))), end="\r", flush=True
-                )
+                print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
 
                 p = Popen(
                     [
