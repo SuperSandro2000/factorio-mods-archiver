@@ -78,11 +78,11 @@ parser.add_option(
     help="Turn off screen output flush",
 )
 parser.add_option(
-    "--flush-data",
+    "--keep-important",
     action="store_false",
     default=True,
-    dest="flush_getting_data",
-    help="Only flush 'Getting data for ....'",
+    dest="keep_important",
+    help="Only flush non important lines.",
 )
 parser.add_option(
     "-p",
@@ -137,10 +137,13 @@ if options.flush:
 else:
     print_end = "\r\n"
 
-if options.flush_getting_data:
-    getting_data_print_end = "\r\n"
-else:
-    getting_data_print_end = "\r"
+
+def print_progress(out, important = True):
+    if important and options.keep_important:
+        print("{}{}".format(out, " " * (columns - len(out))), end="\r\n", flush=options.flush)
+    else:
+        print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
+
 
 data_file = "{}.json".format(options.dir)
 mods_file = "{}/mods.json".format(options.dir)
@@ -187,8 +190,7 @@ else:
 mod_count = len(mods["results"])
 
 for i, mod in enumerate(mods["results"]):
-    # out = "Processing mod {} of {}: Comparing versions of {}".format(i, mod_count, mod["name"])
-    # print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
+    # print_progress("Processing mod {} of {}: Comparing versions of {}".format(i, mod_count, mod["name"]))
 
     mod_folder = "{}/{}".format(options.dir, mod["name"])
     if not os.path.isdir(mod_folder):
@@ -210,8 +212,7 @@ for i, mod in enumerate(mods["results"]):
         data[mod["name"]]["releases"] = {}
 
     # update archives
-    out = "Processing mod {} of {}: Getting data for {}".format(i + 1, mod_count, mod["name"])
-    print("{}{}".format(out, " " * (columns - len(out))), end=getting_data_print_end, flush=options.flush)
+    print_progress("Processing mod {} of {}: Getting data for {}".format(i + 1, mod_count, mod["name"]), False)
     mod_data_req = requests.get("https://mods.factorio.com/api/mods/{}/full".format(mod["name"]))
 
     if mod_data_req.status_code != 200:
@@ -244,8 +245,7 @@ for i, mod in enumerate(mods["results"]):
 
         # download files
         if not (options.check_sha or options.upload_all):
-            out = "Processing mod {} of {}: Downloading {}".format(i + 1, mod_count, archive["file_name"])
-            print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
+            print_progress("Processing mod {} of {}: Downloading {}".format(i + 1, mod_count, archive["file_name"]))
 
             url = "https://mods.factorio.com{}?username={}&token={}".format(release["download_url"],
                                                                             options.user, options.token)
