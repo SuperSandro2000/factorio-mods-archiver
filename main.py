@@ -226,13 +226,14 @@ for i, mod in enumerate(mods["results"]):
     for j, release in enumerate(mod_data["releases"]):
         release_id = release["download_url"].split("/")[3]
 
-        if release_id not in data[mod["name"]]["releases"]:
-            data[mod["name"]]["releases"][release_id] = {}
-        else:
-            if not options.check_sha and not options.upload_all:
-                continue
+        releases = data[mod["name"]]["releases"]
 
-        archive = data[mod["name"]]["releases"][release_id]
+        if release_id not in releases:
+            releases[release_id] = {}
+        elif releases[release_id]["uploaded"] or options.check_sha:
+            continue
+
+        archive = releases[release_id]
         archive["file_name"] = release["file_name"]
         archive["sha1"] = release["sha1"]
         archive["version"] = release["version"]
