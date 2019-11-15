@@ -244,8 +244,6 @@ for i, mod in enumerate(mods["results"]):
         # add uploaded tag if necessary
         if "uploaded" not in archive:
             archive["uploaded"] = False
-        else:
-            continue
 
         # download files
         if not (options.check_sha or options.upload_all):
