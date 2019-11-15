@@ -78,6 +78,13 @@ parser.add_option(
     help="Turn off screen output flush",
 )
 parser.add_option(
+    "--flush-data",
+    action="store_false",
+    default=True,
+    dest="flush_getting_data",
+    help="Only flush 'Getting data for ....'",
+)
+parser.add_option(
     "-p",
     "--password",
     dest="password",
@@ -129,6 +136,11 @@ if options.flush:
     print_end = "\r"
 else:
     print_end = "\r\n"
+
+if options.flush_getting_data:
+    getting_data_print_end = "\r\n"
+else:
+    getting_data_print_end = "\r"
 
 data_file = "{}.json".format(options.dir)
 mods_file = "{}/mods.json".format(options.dir)
@@ -199,7 +211,7 @@ for i, mod in enumerate(mods["results"]):
 
     # update archives
     out = "Processing mod {} of {}: Getting data for {}".format(i + 1, mod_count, mod["name"])
-    print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
+    print("{}{}".format(out, " " * (columns - len(out))), end=getting_data_print_end, flush=options.flush)
     mod_data_req = requests.get("https://mods.factorio.com/api/mods/{}/full".format(mod["name"]))
 
     if mod_data_req.status_code != 200:
