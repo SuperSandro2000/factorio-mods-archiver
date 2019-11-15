@@ -33,32 +33,34 @@ logging.basicConfig(
 parser = OptionParser()
 parser.add_option(
     "-a",
-    "--check-all",
+    "--compare-all",
     action="store_true",
     default=False,
-    dest="check_all",
-    help="Not only check if latest version is already downloaded. This considerable slows down the script execution but does not miss some old, not downloaded mods.",
+    dest="compare_all",
+    help="Not only check if latest version is already downloaded. This considerable slows down the script execution but does not miss some old, not downloaded mods. Default: False",
 )
 parser.add_option(
     "-A",
     "--upload-all",
     action="store_true",
+    default=False,
     dest="upload_all",
-    help="Skip updating mods data and upload all downloaded archives that haven't already. Default: false",
+    help="Skip updating mod data and upload all downloaded archives that haven't already been. Default: False",
 )
 parser.add_option(
     "-c",
     "--check",
     action="store_true",
+    default=False,
     dest="check_sha",
-    help="Needs to be implemented! Check downloaded archives. Default: false",
+    help="Not implemented! Should check shas of uploaded archives. Default: False",
 )
 parser.add_option(
     "-d",
     "--directory",
     dest="dir",
     default="data",
-    help="write data to FOLDER",
+    help="Data folder which keeps track of already uploaded files. Default: data",
     metavar="FOLDER",
 )
 parser.add_option(
@@ -66,7 +68,7 @@ parser.add_option(
     "--email",
     dest="email",
     default="",
-    help="GSuite drive email to upload to",
+    help="GSuite email used to upload files to GDrive.",
     metavar="EMAIL",
 )
 parser.add_option(
@@ -75,14 +77,14 @@ parser.add_option(
     action="store_false",
     default=True,
     dest="flush",
-    help="Turn off screen output flush",
+    help="Turn off screen output flush. Default: True",
 )
 parser.add_option(
     "--keep-important",
     action="store_false",
     default=True,
     dest="keep_important",
-    help="Only flush non important lines.",
+    help="Only flush non important log lines. Default: True",
 )
 parser.add_option(
     "-p",
@@ -97,7 +99,7 @@ parser.add_option(
     "--token",
     dest="token",
     default="",
-    help="sets the token to download with",
+    help="The token belonging to the factorio user account.",
     metavar="TOKEN",
 )
 parser.add_option(
@@ -105,15 +107,16 @@ parser.add_option(
     "--user",
     dest="user",
     default="",
-    help="sets the user name to download with",
+    help="The factorio username to download files with",
     metavar="USER",
 )
 parser.add_option(
     "-U",
     "--upload",
     action="store_true",
+    default=False,
     dest="upload",
-    help="Upload all downloaded archives. Default: false",
+    help="Upload all downloaded archives. Default: False",
 )
 
 (options, args) = parser.parse_args()
@@ -202,7 +205,7 @@ for i, mod in enumerate(mods["results"]):
         for k in data[mod["name"]]["releases"]:
             versions.append(data[mod["name"]]["releases"][k]["version"])
 
-        if not (options.check_sha or options.upload_all or options.check_all):
+        if not (options.check_sha or options.upload_all or options.compare_all):
             if mod["latest_release"]["version"] in versions:
                 continue
 
