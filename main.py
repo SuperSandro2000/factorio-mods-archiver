@@ -244,23 +244,12 @@ for i, mod in enumerate(mods["results"]):
 
         # download files
         if not (options.check_sha or options.upload_all):
-            out = "Processing mod {} of {}: Downloading {}".format(
-                i + 1, mod_count, archive["file_name"]
-            )
+            out = "Processing mod {} of {}: Downloading {}".format(i + 1, mod_count, archive["file_name"])
             print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
 
-            url = "https://mods.factorio.com{}?username={}&token={}".format(
-                release["download_url"], options.user, options.token
-            )
-            p = Popen(
-                [
-                    "curl",
-                    "-Ls",
-                    url,
-                    "-o",
-                    "{}/{}".format(mod_folder, archive["file_name"]),
-                ]
-            )
+            url = "https://mods.factorio.com{}?username={}&token={}".format(release["download_url"],
+                                                                            options.user, options.token)
+            p = Popen(["curl", "-Ls", url, "-o", "{}/{}".format(mod_folder, archive["file_name"])])
             output = p.communicate()[0]
 
             if p.returncode != 0:
@@ -272,9 +261,7 @@ for i, mod in enumerate(mods["results"]):
             f.write("{}  ./{}\n".format(archive["sha1"], archive["file_name"]))
 
         # check sha1
-        p = Popen(
-            ["sha1sum", "-c", "./{}".format(sha1_file)], cwd=mod_folder, stdout=PIPE
-        )
+        p = Popen(["sha1sum", "-c", "./{}".format(sha1_file)], cwd=mod_folder, stdout=PIPE)
         output = p.communicate()[0]
         if p.returncode != 0:
             logging.warning("sha1 mismatch at %s/%s", mod["name"], archive["file_name"])
