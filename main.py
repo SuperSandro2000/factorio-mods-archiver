@@ -101,12 +101,8 @@ if options.user == "" or options.token == "":
     print("Set --user USER and --token TOKEN")
     exit(1)
 
-if (options.upload or options.upload_all) and (
-    options.email == "" or options.password == ""
-):
-    print(
-        "When supplying --upload you need to supply --email EMAIL and --password PASSWORD"
-    )
+if (options.upload or options.upload_all) and (options.email == "" or options.password == ""):
+    print("When supplying --upload you need to supply --email EMAIL and --password PASSWORD")
     exit(1)
 
 # if GSuite email and password are supplied guess to upload archives
