@@ -32,6 +32,14 @@ logging.basicConfig(
 
 parser = OptionParser()
 parser.add_option(
+    "-a",
+    "--check-all",
+    action="store_true",
+    default=False,
+    dest="check_all",
+    help="Not only check if latest version is already downloaded. This considerable slows down the script execution but does not miss some old, not downloaded mods.",
+)
+parser.add_option(
     "-A",
     "--upload-all",
     action="store_true",
@@ -175,10 +183,9 @@ for i, mod in enumerate(mods["results"]):
         for k in data[mod["name"]]["releases"]:
             versions.append(data[mod["name"]]["releases"][k]["version"])
 
-        if mod["latest_release"]["version"] in versions and not (
-            options.check_sha or options.upload_all
-        ):
-            continue
+        if not (options.check_sha or options.upload_all or options.check_all):
+            if mod["latest_release"]["version"] in versions:
+                continue
 
     # data entry empty, mod new then process all archives
     else:
