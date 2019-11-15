@@ -193,13 +193,10 @@ for i, mod in enumerate(mods["results"]):
         data[mod["name"]]["releases"] = {}
 
     # update archives
-    out = "Processing mod {} of {}: Getting data for {}".format(
-        i + 1, mod_count, mod["name"]
-    )
+    out = "Processing mod {} of {}: Getting data for {}".format(i + 1, mod_count, mod["name"])
     print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
-    mod_data_req = requests.get(
-        "https://mods.factorio.com/api/mods/{}/full".format(mod["name"])
-    )
+    mod_data_req = requests.get("https://mods.factorio.com/api/mods/{}/full".format(mod["name"]))
+
     if mod_data_req.status_code != 200:
         logging.error(mods_req.prepare())
         exit(1)
