@@ -135,6 +135,8 @@ if options.upload_all:
     if os.path.exists(data_file):
         with open(data_file, "r") as f:
             data = json.load(f)
+        with open(mods_cache_file, "r") as f:
+            mods = json.load(f)
     else:
         logging.error("No data.json found.")
         exit(1)
