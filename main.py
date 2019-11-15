@@ -125,6 +125,11 @@ if (options.upload or options.upload_all) and (options.email == "" or options.pa
 if options.email or options.password:
     options.upload = True
 
+if options.flush:
+    print_end = "\r"
+else:
+    print_end = "\r\n"
+
 data_file = "{}.json".format(options.dir)
 mods_file = "{}/mods.json".format(options.dir)
 mods_cache_file = "{}/mods-cache.json".format(options.dir)
@@ -171,7 +176,7 @@ mod_count = len(mods["results"])
 
 for i, mod in enumerate(mods["results"]):
     # out = "Processing mod {} of {}: Comparing versions of {}".format(i, mod_count, mod["name"])
-    # print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
+    # print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
 
     mod_folder = "{}/{}".format(options.dir, mod["name"])
     if not os.path.isdir(mod_folder):
@@ -194,7 +199,7 @@ for i, mod in enumerate(mods["results"]):
 
     # update archives
     out = "Processing mod {} of {}: Getting data for {}".format(i + 1, mod_count, mod["name"])
-    print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
+    print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
     mod_data_req = requests.get("https://mods.factorio.com/api/mods/{}/full".format(mod["name"]))
 
     if mod_data_req.status_code != 200:
@@ -230,7 +235,7 @@ for i, mod in enumerate(mods["results"]):
             out = "Processing mod {} of {}: Downloading {}".format(
                 i + 1, mod_count, archive["file_name"]
             )
-            print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
+            print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
 
             url = "https://mods.factorio.com{}?username={}&token={}".format(
                 release["download_url"], options.user, options.token
@@ -269,7 +274,7 @@ for i, mod in enumerate(mods["results"]):
                 out = "Processing mod {} of {}: Uploading {}".format(
                     i + 1, mod_count, archive["file_name"]
                 )
-                print("{}{}".format(out, " " * (columns - len(out))), end="\r", flush=options.flush)
+                print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
 
                 p = Popen(
                     [
