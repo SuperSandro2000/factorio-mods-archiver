@@ -272,10 +272,7 @@ for i, mod in enumerate(mods["results"]):
         if options.upload:
             upload_errors = False
             for file in [archive["file_name"], sha1_file]:
-                out = "Processing mod {} of {}: Uploading {}".format(
-                    i + 1, mod_count, archive["file_name"]
-                )
-                print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
+                print_progress("Processing mod {} of {}: Uploading {}".format(i + 1, mod_count, file))
 
                 p = Popen(
                     [
