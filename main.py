@@ -27,7 +27,7 @@ logFile = "archiver-py.log"
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)-7.7s  %(message)s",
-    handlers=[logging.FileHandler("{}.log".format(logFile)), logging.StreamHandler()],
+    handlers=[logging.FileHandler("{}".format(logFile)), logging.StreamHandler()],
 )
 
 parser = OptionParser()
