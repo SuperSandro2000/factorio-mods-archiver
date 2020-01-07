@@ -4,11 +4,12 @@ from subprocess import Popen, PIPE
 import json
 import logging
 import os
-import requests
 import signal
 
+import requests
 
-class DelayedKeyboardInterrupt(object):
+
+class DelayedKeyboardInterrupt():
     def __enter__(self):
         self.signal_received = False
         self.old_handler = signal.signal(signal.SIGINT, self.handler)
@@ -140,13 +141,11 @@ if options.flush:
 else:
     print_end = "\r\n"
 
-
 def print_progress(out, important = True):
     if important and options.keep_important:
         print("{}{}".format(out, " " * (columns - len(out))), end="\r\n", flush=options.flush)
     else:
         print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
-
 
 data_file = "{}.json".format(options.dir)
 mods_file = "{}/mods.json".format(options.dir)
