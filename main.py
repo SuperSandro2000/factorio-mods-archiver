@@ -255,7 +255,8 @@ for i, mod in enumerate(mods["results"]):
             output = p.communicate()[0]
 
             if p.returncode != 0:
-                logging.error("Couldn't download %s/%s", mod["name"], archive["file_name"])
+                logging.error("Couldn't download %s with %s", path, url)
+                exit(1)
 
         # write sha1 file
         sha1_file = "{}.sha1".format(os.path.splitext(archive["file_name"])[0])
