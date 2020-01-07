@@ -250,7 +250,8 @@ for i, mod in enumerate(mods["results"]):
 
             url = "https://mods.factorio.com{}?username={}&token={}".format(release["download_url"],
                                                                             options.user, options.token)
-            p = Popen(["curl", "-Ls", "-o", "{}/{}, --, url".format(mod_folder, archive["file_name"])])
+            path = "{}/{}".format(mod_folder, archive["file_name"])
+            p = Popen(["curl", "-Ls", "-o", path, "--", url])
             output = p.communicate()[0]
 
             if p.returncode != 0:
