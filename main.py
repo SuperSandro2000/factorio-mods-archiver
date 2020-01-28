@@ -122,7 +122,10 @@ parser.add_option(
 
 (options, args) = parser.parse_args()
 
-columns, _ = os.get_terminal_size()
+try:
+    columns, _ = os.get_terminal_size()
+except:
+    columns = 100
 
 if options.user == "" or options.token == "":
     print("Set --user USER and --token TOKEN")
