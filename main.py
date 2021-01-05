@@ -208,7 +208,7 @@ for i, mod in enumerate(mods["results"]):
             versions.append(data[mod["name"]]["releases"][k]["version"])
 
         if not (options.check_sha or options.upload_all or options.compare_all):
-            if mod["latest_release"]["version"] in versions:
+            if mod["latest_release"] is not None and mod["latest_release"]["version"] in versions:
                 continue
 
     # data entry empty, mod new then process all archives
