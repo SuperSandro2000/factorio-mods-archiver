@@ -182,9 +182,10 @@ if options.upload_all:
         logging.error("No data.json found.")
         exit(1)
 else:
-    mods_req = requests.get("https://mods.factorio.com/api/mods?page_size=max")
+    # page_size=max is broken and returns 500
+    mods_req = requests.get("https://mods.factorio.com/api/mods?page_size=1000000")
     if mods_req.status_code != 200:
-        logging.warning(mods_req.prepare())
+        logging.warning(mods_req.content)
         exit(1)
 
     mods = mods_req.json()
