@@ -2,7 +2,7 @@
 
 with pkgs;
 
-mkShell {
+mkShellNoCC {
   buildInputs = [
     rclone
   ];
