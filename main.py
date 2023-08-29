@@ -45,7 +45,7 @@ parser.add_option(
     "--directory",
     dest="dir",
     default="data",
-    help="Data folder which keeps track of already uploaded files. Default: data",
+    help="Where to write downloaded files. Default: data",
     metavar="FOLDER",
 )
 parser.add_option(
@@ -54,14 +54,7 @@ parser.add_option(
     action="store_false",
     default=True,
     dest="flush",
-    help="Turn off screen output flush. Default: True",
-)
-parser.add_option(
-    "--keep-important",
-    action="store_false",
-    default=True,
-    dest="keep_important",
-    help="Only flush non important log lines. Default: True",
+    help="Wether to turn on screen flushing. Default: True",
 )
 parser.add_option(
     "-t",
@@ -76,7 +69,7 @@ parser.add_option(
     "--user",
     dest="user",
     default="",
-    help="The factorio username to download files with",
+    help="The factorio username to download files with.",
     metavar="USER",
 )
 
@@ -97,14 +90,13 @@ else:
     print_end = "\r\n"
 
 def print_progress(out, important = True):
-    if important and options.keep_important:
+    if important:
         print("{}{}".format(out, " " * (columns - len(out))), end="\r\n", flush=options.flush)
     else:
         print("{}{}".format(out, " " * (columns - len(out))), end=print_end, flush=options.flush)
 
-data_file = "{}.json".format(options.dir)
+data_file = "{}/data.json".format(options.dir)
 mods_file = "{}/mods.json".format(options.dir)
-mods_cache_file = "{}/mods-cache.json".format(options.dir)
 
 if os.path.exists(data_file):
     with open(data_file, "r") as f:
@@ -112,16 +104,7 @@ if os.path.exists(data_file):
 else:
     data = {}
 
-if os.path.isdir(options.dir):
-    if os.path.exists(mods_file):
-        with open(mods_file, "r") as f:
-            mods_cached = json.load(f)
-
-        if os.path.exists(mods_cache_file):
-            os.remove(mods_cache_file)
-        os.rename(mods_file, mods_cache_file)
-else:
-    os.makedirs(options.dir, exist_ok=True)
+os.makedirs(options.dir, exist_ok=True)
 
 # page_size=max is broken and returns 500
 mods_req = requests.get("https://mods.factorio.com/api/mods?page_size=1000000")
@@ -214,6 +197,3 @@ for i, mod in enumerate(mods["results"]):
     with DelayedKeyboardInterrupt():
         with open(data_file, "w") as f:
             json.dump(data, f, indent=2, sort_keys=True)
-
-if os.path.exists(mods_cache_file):
-    os.remove(mods_cache_file)
