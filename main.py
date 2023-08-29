@@ -41,36 +41,12 @@ parser.add_option(
     help="Not only check if latest version is already downloaded. This considerable slows down the script execution but does not miss some old, not downloaded mods. Default: False",
 )
 parser.add_option(
-    "-A",
-    "--upload-all",
-    action="store_true",
-    default=False,
-    dest="upload_all",
-    help="Skip updating mod data and upload all downloaded archives that haven't already been. Default: False",
-)
-parser.add_option(
-    "-c",
-    "--check",
-    action="store_true",
-    default=False,
-    dest="check_sha",
-    help="Not implemented! Should check shas of uploaded archives. Default: False",
-)
-parser.add_option(
     "-d",
     "--directory",
     dest="dir",
     default="data",
     help="Data folder which keeps track of already uploaded files. Default: data",
     metavar="FOLDER",
-)
-parser.add_option(
-    "-e",
-    "--email",
-    dest="email",
-    default="",
-    help="GSuite email used to upload files to GDrive.",
-    metavar="EMAIL",
 )
 parser.add_option(
     "-f",
@@ -88,14 +64,6 @@ parser.add_option(
     help="Only flush non important log lines. Default: True",
 )
 parser.add_option(
-    "-p",
-    "--password",
-    dest="password",
-    default="",
-    help="RClone configuration password",
-    metavar="PASSWORD",
-)
-parser.add_option(
     "-t",
     "--token",
     dest="token",
@@ -111,14 +79,6 @@ parser.add_option(
     help="The factorio username to download files with",
     metavar="USER",
 )
-parser.add_option(
-    "-U",
-    "--upload",
-    action="store_true",
-    default=False,
-    dest="upload",
-    help="Upload all downloaded archives. Default: False",
-)
 
 (options, args) = parser.parse_args()
 
@@ -130,14 +90,6 @@ except:
 if options.user == "" or options.token == "":
     print("Set --user USER and --token TOKEN")
     exit(1)
-
-if (options.upload or options.upload_all) and (options.email == "" or options.password == ""):
-    print("When supplying --upload you need to supply --email EMAIL and --password PASSWORD")
-    exit(1)
-
-# if GSuite email and password are supplied guess to upload archives
-if options.email or options.password:
-    options.upload = True
 
 if options.flush:
     print_end = "\r"
@@ -171,27 +123,15 @@ if os.path.isdir(options.dir):
 else:
     os.makedirs(options.dir, exist_ok=True)
 
-# reuse local data
-if options.upload_all:
-    if os.path.exists(data_file):
-        with open(data_file, "r") as f:
-            data = json.load(f)
-        with open(mods_cache_file, "r") as f:
-            mods = json.load(f)
-    else:
-        logging.error("No data.json found.")
-        exit(1)
-else:
-    # page_size=max is broken and returns 500
-    mods_req = requests.get("https://mods.factorio.com/api/mods?page_size=1000000")
-    if mods_req.status_code != 200:
-        logging.warning(mods_req.content)
-        exit(1)
+# page_size=max is broken and returns 500
+mods_req = requests.get("https://mods.factorio.com/api/mods?page_size=1000000")
+if mods_req.status_code != 200:
+    logging.warning(mods_req.content)
+    exit(1)
 
-    mods = mods_req.json()
-    with open(mods_file, "w") as f:
-        json.dump(mods, f, indent=2, sort_keys=True)
-
+mods = mods_req.json()
+with open(mods_file, "w") as f:
+    json.dump(mods, f, indent=2, sort_keys=True)
 
 mod_count = len(mods["results"])
 
@@ -208,7 +148,7 @@ for i, mod in enumerate(mods["results"]):
         for k in data[mod["name"]]["releases"]:
             versions.append(data[mod["name"]]["releases"][k]["version"])
 
-        if not (options.check_sha or options.upload_all or options.compare_all):
+        if not options.compare_all:
             if mod["latest_release"] is not None and mod["latest_release"]["version"] in versions:
                 continue
 
@@ -236,7 +176,7 @@ for i, mod in enumerate(mods["results"]):
 
         if release_id not in releases:
             releases[release_id] = {}
-        elif releases[release_id]["uploaded"] or options.check_sha:
+        elif releases[release_id]["uploaded"]:
             continue
 
         archive = releases[release_id]
@@ -249,18 +189,16 @@ for i, mod in enumerate(mods["results"]):
             archive["uploaded"] = False
 
         # download files
-        if not (options.check_sha or options.upload_all):
-            print_progress("Processing mod {} of {}: Downloading {}".format(i + 1, mod_count, archive["file_name"]))
+        print_progress("Processing mod {} of {}: Downloading {}".format(i + 1, mod_count, archive["file_name"]))
 
-            url = "https://mods.factorio.com{}?username={}&token={}".format(release["download_url"],
-                                                                            options.user, options.token)
-            path = "{}/{}".format(mod_folder, archive["file_name"])
-            p = Popen(["curl", "-Ls", "-o", path, "--", url])
-            output = p.communicate()[0]
+        url = "https://mods.factorio.com{}?username={}&token={}".format(release["download_url"], options.user, options.token)
+        path = "{}/{}".format(mod_folder, archive["file_name"])
+        p = Popen(["curl", "-Ls", "-o", path, "--", url])
+        output = p.communicate()[0]
 
-            if p.returncode != 0:
-                logging.error("Couldn't download %s with %s", path, url)
-                exit(1)
+        if p.returncode != 0:
+            logging.error("Couldn't download %s with %s", path, url)
+            exit(1)
 
         # write sha1 file
         sha1_file = "{}.sha1".format(os.path.splitext(archive["file_name"])[0])
@@ -272,50 +210,6 @@ for i, mod in enumerate(mods["results"]):
         output = p.communicate()[0]
         if p.returncode != 0:
             logging.warning("sha1 mismatch at %s/%s", mod["name"], archive["file_name"])
-
-        # upload to gsuite
-        if options.upload:
-            upload_errors = False
-            for file in [archive["file_name"], sha1_file]:
-                print_progress("Processing mod {} of {}: Uploading {}".format(i + 1, mod_count, file))
-
-                p = Popen(
-                    [
-                        "rclone",
-                        "--drive-impersonate",
-                        options.email,
-                        "--retries",
-                        "3",
-                        "--retries-sleep",
-                        "3s",
-                        "move",
-                        "./{}".format(file),
-                        "gdrive:/archive/factorio-mods/{}".format(mod["name"]),
-                    ],
-                    cwd=mod_folder,
-                    env={
-                        "HOME": os.environ["HOME"],
-                        "RCLONE_CONFIG_PASS": options.password,
-                    },
-                    stdout=PIPE,
-                )
-                output = p.communicate()[0]
-
-                if p.returncode != 0:
-                    upload_errors = True
-                    logging.error(
-                        "Upload of file %s from mod %s failed",
-                        archive["file_name"],
-                        mod["name"],
-                    )
-
-                if output.decode("utf-8").isspace():
-                    upload_errors = True
-                    logging.error("Possible error occurred:")
-                    logging.error(output.decode("utf-8"))
-
-            if not upload_errors:
-                archive["uploaded"] = True
 
     with DelayedKeyboardInterrupt():
         with open(data_file, "w") as f:

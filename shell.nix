@@ -3,7 +3,8 @@
 with pkgs;
 
 mkShellNoCC {
-  buildInputs = [
-    rclone
+  nativeBuildInputs = [
+    mypy
+    flake8
   ];
 }
